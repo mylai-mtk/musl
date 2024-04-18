@@ -1,3 +1,5 @@
+#include "lpad.h"
+
 .global __setjmp
 .global _setjmp
 .global setjmp
@@ -7,6 +9,7 @@
 __setjmp:
 _setjmp:
 setjmp:
+	LPAD(0)
 	sw s0,    0(a0)
 	sw s1,    4(a0)
 	sw s2,    8(a0)
@@ -39,3 +42,5 @@ setjmp:
 
 	li a0, 0
 	ret
+
+RISCV_ZICFILP_NOTE_GNU_PROPERTY_SECTION

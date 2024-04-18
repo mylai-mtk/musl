@@ -1,3 +1,5 @@
+#include "lpad.h"
+
 # __clone(func, stack, flags, arg, ptid, tls, ctid)
 #           a0,    a1,    a2,  a3,   a4,  a5,   a6
 
@@ -7,6 +9,7 @@
 .global __clone
 .type  __clone, %function
 __clone:
+	LPAD(0)
 	# Save func and arg to stack
 	addi a1, a1, -16
 	sw a0, 0(a1)
@@ -27,8 +30,11 @@ __clone:
 	# Child
 1:      lw a1, 0(sp)
 	lw a0, 4(sp)
+	SETUP_LPAD_LABEL(0x917f4) # int (*)(void*)
 	jalr a1
 
 	# Exit
 	li a7, 93 # SYS_exit
 	ecall
+
+RISCV_ZICFILP_NOTE_GNU_PROPERTY_SECTION

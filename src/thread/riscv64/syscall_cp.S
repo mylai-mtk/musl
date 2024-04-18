@@ -1,3 +1,5 @@
+#include "lpad.h"
+
 .global __cp_begin
 .hidden __cp_begin
 .global __cp_end
@@ -10,6 +12,7 @@
 .type __syscall_cp_asm, %function
 __syscall_cp_asm:
 __cp_begin:
+	LPAD(0)
 	lw t0, 0(a0)
 	bnez t0, __cp_cancel
 
@@ -20,10 +23,12 @@ __cp_begin:
 	mv a3, a5
 	mv a4, a6
 	mv a5, a7
-	lw a6, 0(sp)
+	ld a6, 0(sp)
 	mv a7, t0
 	ecall
 __cp_end:
 	ret
 __cp_cancel:
 	tail __cancel
+
+RISCV_ZICFILP_NOTE_GNU_PROPERTY_SECTION

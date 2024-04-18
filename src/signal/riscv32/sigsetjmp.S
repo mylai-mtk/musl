@@ -1,9 +1,12 @@
+#include "lpad.h"
+
 .global sigsetjmp
 .global __sigsetjmp
 .type sigsetjmp, %function
 .type __sigsetjmp, %function
 sigsetjmp:
 __sigsetjmp:
+	LPAD(0)
 	bnez a1, 1f
 	tail setjmp
 1:
@@ -21,3 +24,5 @@ __sigsetjmp:
 
 .hidden __sigsetjmp_tail
 	tail __sigsetjmp_tail
+
+RISCV_ZICFILP_NOTE_GNU_PROPERTY_SECTION
