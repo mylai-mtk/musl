@@ -22,6 +22,10 @@
 #include "pthread_impl.h"
 #include "fork_impl.h"
 #include "dynlink.h"
+#include "feature_1_and_arch.h"
+#if USE_FEATURE_1_AND != 0
+#include "feature_1_and.h"
+#endif // #if USE_FEATURE_1_AND != 0
 
 static size_t ldso_page_size;
 #ifndef PAGE_SIZE
@@ -174,6 +178,20 @@ static int dl_strcmp(const char *l, const char *r)
 	return *(unsigned char *)l - *(unsigned char *)r;
 }
 #define strcmp(l,r) dl_strcmp(l,r)
+
+#if USE_FEATURE_1_AND != 0
+static uint32_t collect_feature_1_and(const struct dso *p)
+{
+	if (!p) return 0;
+
+	uint32_t ret = 0xffffffff;
+	const struct dso *cur_dso;
+	for (cur_dso = p; cur_dso; cur_dso = cur_dso->next) {
+		ret &= __parse_feature_1_and(cur_dso->base);
+	}
+	return ret;
+}
+#endif // #if USE_FEATURE_1_AND != 0
 
 /* Compute load address for a virtual address in a given dso. */
 #if DL_FDPIC
@@ -1756,6 +1774,9 @@ hidden void __dls2(unsigned char *base, size_t *sp)
 
 	head = &ldso;
 	reloc_all(&ldso);
+#if USE_FEATURE_1_AND != 0
+	__feature_1_and = __parse_feature_1_and(ehdr);
+#endif // #if USE_FEATURE_1_AND != 0
 
 	ldso.relocated = 0;
 
@@ -1988,6 +2009,10 @@ void __dls3(size_t *sp, size_t *auxv)
 		tail = &vdso;
 	}
 
+#if USE_FEATURE_1_AND != 0
+	__feature_1_and &= collect_feature_1_and(head);
+#endif // #if USE_FEATURE_1_AND != 0
+
 	for (i=0; app.dynv[i]; i+=2) {
 		if (!DT_DEBUG_INDIRECT && app.dynv[i]==DT_DEBUG)
 			app.dynv[i+1] = (size_t)&debug;
@@ -2174,6 +2199,13 @@ void *dlopen(const char *file, int mode)
 
 	/* First load handling */
 	load_deps(p);
+#if USE_FEATURE_1_AND != 0
+	uint32_t added_feature_1_and = collect_feature_1_and(p);
+	if ((added_feature_1_and & __feature_1_and) != __feature_1_and) {
+		error("Library %s is incompatible with enabled program features", file);
+		longjmp(*rtld_fail, 1);
+	}
+#endif // #if USE_FEATURE_1_AND != 0
 	extend_bfs_deps(p);
 	pthread_mutex_lock(&init_fini_lock);
 	int constructed = p->constructed;

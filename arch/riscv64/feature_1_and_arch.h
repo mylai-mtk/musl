@@ -1,0 +1,12 @@
+#ifdef __riscv_zicfilp
+#define USE_FEATURE_1_AND (1)
+#endif // #ifdef __riscv_zicfilp
+
+#if USE_FEATURE_1_AND != 0
+
+#define GNU_PROPERTY_RISCV_FEATURE_1_AND (0xc0000000)
+#define GNU_PROPERTY_FEATURE_1_AND_TYPE GNU_PROPERTY_RISCV_FEATURE_1_AND
+#define GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_SIMPLE (1 << 0)
+#define GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_FUNC_SIG (1 << 2)
+
+#endif // #if USE_FEATURE_1_AND != 0
