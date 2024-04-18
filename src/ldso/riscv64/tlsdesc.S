@@ -1,8 +1,11 @@
+#include "lpad.h"
+
 .text
 .global __tlsdesc_static
 .hidden __tlsdesc_static
 .type __tlsdesc_static,%function
 __tlsdesc_static:
+	LPAD(0)
 	ld a0,8(a0)
 	jr t0
 
@@ -10,6 +13,7 @@ __tlsdesc_static:
 .hidden __tlsdesc_dynamic
 .type __tlsdesc_dynamic,%function
 __tlsdesc_dynamic:
+	LPAD(0)
 	add sp,sp,-16
 	sd t1,(sp)
 	sd t2,8(sp)
@@ -30,3 +34,5 @@ __tlsdesc_dynamic:
 	ld t2,8(sp)
 	add sp,sp,16
 	jr t0
+
+RISCV_ZICFILP_NOTE_GNU_PROPERTY_SECTION

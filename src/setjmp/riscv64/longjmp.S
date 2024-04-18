@@ -1,3 +1,5 @@
+#include "lpad.h"
+
 .global __longjmp
 .global _longjmp
 .global longjmp
@@ -7,6 +9,7 @@
 __longjmp:
 _longjmp:
 longjmp:
+	LPAD(0)
 	ld s0,    0(a0)
 	ld s1,    8(a0)
 	ld s2,    16(a0)
@@ -40,3 +43,5 @@ longjmp:
 	seqz a0, a1
 	add a0, a0, a1
 	ret
+
+RISCV_ZICFILP_NOTE_GNU_PROPERTY_SECTION
