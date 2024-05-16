@@ -10,6 +10,7 @@
 #if USE_FEATURE_1_AND != 0
 #include "feature_1_and.h"
 #endif // #if USE_FEATURE_1_AND != 0
+#include "invoke_main_arch.h"
 
 static void dummy(void) {}
 weak_alias(dummy, _init);
@@ -144,6 +145,8 @@ static int libc_start_main_stage2(int (*main)(int,char **,char **), int argc, ch
 	__libc_start_init();
 
 	/* Pass control to the application */
-	exit(main(argc, argv, envp));
+	/* `main` is passed as the last argument, so `invoke_main` can jump to
+	 * `main` without moving other arguments */
+	exit(invoke_main(argc, argv, envp, main));
 	return 0;
 }
